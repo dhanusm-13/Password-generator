@@ -1,2 +1,3 @@
 # Password-generator
 password generation using python
+This project is a web-based Password Generator application built using HTML, CSS, JavaScript, and a Flask backend. It allows users to create secure, random passwords by specifying a desired length and choosing to include numbers or symbols, ensuring flexibility and security. Key features include real-time input validation with a "captcha-style" error blocking, a dynamic password strength meter that visualizes security levels (Weak, Medium, Strong), and user-friendly tools like one-click copying and instant regeneration. The interface is clean and responsive, utilizing local state retention to remember user preferences while ensuring a smooth reset experience upon browser refresh.

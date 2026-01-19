@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Password generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        *{
+        background-color:#fff;
+        font-family:sans-serif;
+        border-radius:10px;
+        }
+
+        .container{
+        background:lightblue;
+        width:400px;
+        margin:auto;
+        padding:20px;
+        text-align:center;
+        margin-top:50px;
+        border-radius:10px;
+        box-shadow:0px 0px 10px rgba(0,0,0,0.3);
+        }
+
+        input[type="number"]{
+        margin-top:5px;
+        padding:10px;
+        border:1px solid #ddd;
+        border-radius:5px;
+        font-size:16px;
+        width:60px;
+        text-align:center;
+        }
+
+    button {
+        background-color: lightblue;
+        color: #000;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer; /* Changes mouse to a hand icon */
+        margin:auto;
+        margin-bottom:5px;
+        shadow:
+        }
+        button:hover{
+         color:#007BFF;
+        }
+
+        h1{
+        color: white;
+        text-shadow: 3px 2px 5px #000000;
+        }
+
+
+        .result-wrapper {
+        overflow-wrap: break-word;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .password-box {
+            margin-top:3px;
+            margin-bottom:3px;
+            margin-right:3px;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            padding: 5px 3px;
+            display: flex;
+            max-width:350px;
+            width:100%;
+            align-items: center;
+            gap: 5px; /* Space between text and icons */
+        }
+        #password-text{
+            word-break:break-all;
+            flex: 1;
+        }
+
+        .icon-btn:hover {
+            color: #007BFF;
+        }
+
+        .icon-btn{
+            background-color:transparent;
+            color:#000;
+            margin-top: 5px;
+            margin-left: 1px;
+            padding: 5px 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #error-msg {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+            font-weight: bold;
+            min-height: 20px;
+        }
+        /* Container for the strength bar */
+.strength-container {
+    margin-top: 10px;
+    width: 100%;
+    max-width: 350px;
+    text-align: left;
+}
+
+
+.strength-bar-bg {
+    background-color: #eee;
+    height: 5px;
+    border-radius: 3px;
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+#strength-bar-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s, background-color 0.3s;
+}
+
+/* The text label */
+#strength-text {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+
+    }
+
+
+    </style>
+</head>
+<body>
+<div class="container">
+<h1 >Password Generator</h1>
+
+<form method="POST" action="/" onsubmit="return validateForm()">
+    <label>Enter the length of Password:</label>
+<input type="number" name="length" required value="{{ request.form.length if request.form.length else ' ' }}" id="length" oninput="clearError()">    <p id="error-msg"></p>
+    <br><br>
+    <label>
+        <input type="checkbox" name="use_number" value="Yes">Include Numbers
+    </label>
+    <br>
+    <label>
+        <input type="checkbox" name="use_symbols" value="Yes">Include Symbols
+    </label>
+    <br><br>
+    <button type="submit" id="gen-btn">Generate</button>
+</form>
+{% if password %}
+    <div class="result-wrapper" style="flex-direction: column;"> <div style="display: flex; align-items: center; gap: 10px;">
+            <strong> Your password is: </strong>
+            <div class="password-box">
+                <span id="password-text">{{password}}</span>
+
+                <button onclick="copyPassword()" class="icon-btn" title="Copy">
+                    <i class="fa-regular fa-copy"></i>
+                </button>
+
+                <button onclick="document.getElementById('gen-btn').click()" class="icon-btn" title="Regenerate">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="strength-container">
+            <div class="strength-bar-bg">
+                <div id="strength-bar-fill"></div>
+            </div>
+            <span id="strength-text">Checking strength...</span>
+        </div>
+
+    </div>
+{% endif %}
+    </div>
+<script>
+    if ( window.history.replaceState ) {
+        window.history.replaceState( null, null, window.location.href );
+    }
+    function copyPassword() {
+        let passwordSpan = document.getElementById("password-text");
+        if (passwordSpan) {
+            navigator.clipboard.writeText(passwordSpan.innerText);
+            alert("Password copied!");
+        }
+    }
+
+    function validateForm() {
+        let userLength = document.getElementById("length").value;
+        if (userLength < 5) {
+            document.getElementById("error-msg").innerText = "Length should be greater than or equal to 5";
+
+            let passText = document.getElementById("password-text");
+            if (passText) {
+                passText.innerText = "";
+            }
+
+            return false;
+        }
+    }
+
+    function clearError() {
+        document.getElementById("error-msg").innerText = "";
+        let passText = document.getElementById("password-text");
+        if (passText) {
+            passText.innerText = "";
+        }
+    }
+    window.onload = function() {
+        let passwordSpan = document.getElementById("password-text");
+        if (passwordSpan) {
+            checkStrength(passwordSpan.innerText);
+        }
+    };
+
+    function checkStrength(password) {
+        let strengthBar = document.getElementById("strength-bar-fill");
+        let strengthText = document.getElementById("strength-text");
+        let score = 0;
+
+
+        if (password.length >= 8) score++;
+        if (password.length >= 12) score++;
+
+        // 2. Check for Numbers
+        if (/\d/.test(password)) score++;
+
+        // 3. Check for Symbols
+        if (/[^A-Za-z0-9]/.test(password)) score++;
+
+        // Update UI based on Score
+        if (score < 3) {
+            // WEAK
+            strengthBar.style.width = "30%";
+            strengthBar.style.backgroundColor = "#ff4d4d"; // Red
+            strengthText.innerText = "Strength: Weak";
+            strengthText.style.color = "#ff4d4d";
+        } else if (score < 4) {
+            // MEDIUM
+            strengthBar.style.width = "60%";
+            strengthBar.style.backgroundColor = "#ffa500"; // Orange
+            strengthText.innerText = "Strength: Medium";
+            strengthText.style.color = "#ffa500";
+        } else {
+            // STRONG
+            strengthBar.style.width = "100%";
+            strengthBar.style.backgroundColor = "#28a745"; // Green
+            strengthText.innerText = "Strength: Strong";
+            strengthText.style.color = "#28a745";
+        }
+    }
+</script>
+</body>
+</html>
